@@ -13,6 +13,7 @@ import (
 )
 
 type unexportedInterface interface {
+	Keys() []string
 	Set(string, interface{}, time.Duration)
 	Add(string, interface{}, time.Duration) error
 	Replace(string, interface{}, time.Duration) error
@@ -80,6 +81,16 @@ type cache struct {
 	defaultExpiration time.Duration
 	items             map[string]*item
 	janitor           *janitor
+}
+
+func (c *cache) Keys() []string {
+	c.RLock()
+	keys := make([]string, 0, len(c.items))
+	for k, _ := range c.items {
+		keys = append(keys, k)
+	}
+	c.RUnlock()
+	return keys
 }
 
 // Add an item to the cache, replacing any existing item. If the duration is 0,
