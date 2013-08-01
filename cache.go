@@ -93,6 +93,18 @@ func (c *cache) Keys() []string {
 	return keys
 }
 
+func (c *Cache) Clone() map[string]interface{} {
+	c.RLock()
+	cloned := make(map[string]interface{}, 0, len(c.items))
+	for k, v := range c.items {
+		if !item.Expired() {
+			cloned[k] = v.Object
+		}
+	}
+	c.RUnlock()
+	return cloned
+}
+
 // Add an item to the cache, replacing any existing item. If the duration is 0,
 // the cache's default expiration time is used. If it is -1, the item never
 // expires.
