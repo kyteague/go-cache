@@ -95,9 +95,9 @@ func (c *cache) Keys() []string {
 
 func (c *Cache) Clone() map[string]interface{} {
 	c.RLock()
-	cloned := make(map[string]interface{}, 0, len(c.items))
+	cloned := make(map[string]interface{}, len(c.items))
 	for k, v := range c.items {
-		if !item.Expired() {
+		if !v.Expired() {
 			cloned[k] = v.Object
 		}
 	}
