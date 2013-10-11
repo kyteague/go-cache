@@ -18,6 +18,8 @@ type unexportedInterface interface {
 	Add(string, interface{}, time.Duration) error
 	Replace(string, interface{}, time.Duration) error
 	Get(string) (interface{}, bool)
+	GetSet(string, interface{}, time.Duration) (interface{}, bool)
+	GetDelete(string) (interface{}, bool)
 	Increment(string, int64) error
 	IncrementInt(string, int) (int, error)
 	IncrementInt8(string, int8) (int8, error)
@@ -157,6 +159,22 @@ func (c *cache) Replace(k string, x interface{}, d time.Duration) error {
 	c.set(k, x, d)
 	c.Unlock()
 	return nil
+}
+
+func (c *cache) GetSet(k string, x interface{}, d time.Duration) (interface{}, bool) {
+	c.Lock()
+	xOld, found := c.get(k)
+	c.set(k, x, d)
+	c.Unlock()
+	return xOld, found
+}
+
+func (c *cache) GetDelete(k string) (interface{}, bool) {
+	c.RLock()
+	x, found := c.get(k)
+	c.delete(k)
+	c.RUnlock()
+	return x, found
 }
 
 // Get an item from the cache. Returns the item or nil, and a bool indicating
